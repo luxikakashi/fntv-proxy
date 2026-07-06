@@ -17,6 +17,7 @@ type Config struct {
 	LogLevel   string        `mapstructure:"log_level"`
 	LogDir     string        `mapstructure:"log_dir"`
 	CacheTTL   time.Duration `mapstructure:"cache_ttl"` // 直链缓存 TTL（复用原有配置名）
+	Emby       EmbyConfig    `mapstructure:"emby"`
 	mutex      sync.RWMutex
 }
 
@@ -48,6 +49,10 @@ func Load(configPath string) error {
 	viper.SetDefault("log_level", "info")
 	viper.SetDefault("log_dir", "./logs")
 	viper.SetDefault("cache_ttl", 60)
+	viper.SetDefault("emby.enabled", false)
+	viper.SetDefault("emby.listen", ":8095")
+	viper.SetDefault("emby.target", "http://127.0.0.1:8096")
+	viper.SetDefault("emby.proxy_error_strategy", EmbyErrorStrategyOrigin)
 
 	// 环境变量覆盖
 	viper.SetEnvPrefix("FNTV")
@@ -69,6 +74,7 @@ func Load(configPath string) error {
 
 	// 转换 cache_ttl 为 Duration（用于直链缓存）
 	Global.CacheTTL = time.Duration(viper.GetInt("cache_ttl")) * time.Minute
+	initEmbyDefaults()
 
 	log.Printf("✅ 配置加载完成: %s", viper.ConfigFileUsed())
 	log.Printf("📦 直链缓存TTL: %v", Global.CacheTTL)
@@ -132,6 +138,7 @@ func handleConfigChange(configFile string, onChange func()) {
 		return
 	}
 	Global.CacheTTL = time.Duration(viper.GetInt("cache_ttl")) * time.Minute
+	initEmbyDefaults()
 	Global.mutex.Unlock()
 
 	log.Println("✅ 配置已热重载")

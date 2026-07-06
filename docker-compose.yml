@@ -4,6 +4,7 @@ services:
     container_name: fntv-proxy
     ports:
       - "28005:28005"
+      - "8095:8095"   # Emby 代理（emby.enabled: true 时需要）
     volumes:
       # 挂载strm文件目录（根据实际路径修改）
       - /vol00:/vol00:ro

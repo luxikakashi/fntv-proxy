@@ -56,6 +56,7 @@ func (h *StreamHandler) Handle(w http.ResponseWriter, r *http.Request) bool {
 	// 尝试从缓存获取直链
 	if streamURL, found := h.cache.GetStreamURL(source.ID); found {
 		h.logger.Info("✅ 从缓存获取直链: %s", streamURL.URL)
+		h.logDirectLinkType(streamURL.URL)
 		w.Header().Set("Location", streamURL.URL)
 		w.WriteHeader(http.StatusFound)
 		return true
@@ -78,6 +79,7 @@ func (h *StreamHandler) Handle(w http.ResponseWriter, r *http.Request) bool {
 	}
 
 	h.logger.Info("✅ 最终地址: %s", finalURL)
+	h.logDirectLinkType(finalURL)
 
 	// 缓存直链
 	h.cache.SetStreamURL(source.ID, finalURL)
@@ -87,6 +89,11 @@ func (h *StreamHandler) Handle(w http.ResponseWriter, r *http.Request) bool {
 	w.Header().Set("Location", finalURL)
 	w.WriteHeader(http.StatusFound)
 	return true
+}
+
+func (h *StreamHandler) logDirectLinkType(finalURL string) {
+	linkType := ClassifyDirectLink(finalURL)
+	h.logger.Info("📡 直链类型: %s → %s", linkType, DirectLinkMetaHint(linkType))
 }
 
 // resolveURL 请求URL，跟随重定向，返回最终地址

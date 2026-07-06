@@ -1,0 +1,16 @@
+listen: ":28005"
+target: "http://127.0.0.1:8005"
+log_level: "info"
+log_dir: "./logs"
+cache_ttl: 60  # 缓存过期时间（分钟），默认1小时
+
+# Emby 302 代理（默认关闭，不影响现有飞牛代理）
+emby:
+  enabled: false
+  listen: ":8095"
+  target: "http://127.0.0.1:8096"
+  cache_ttl: 60
+  proxy_error_strategy: "origin"  # origin: 失败回源 | reject: 返回错误
+  # strm 内 URL 路径映射（可选）
+  # strm_path_map:
+  #   - "https://old-host:8094 => http://localhost:8095"
