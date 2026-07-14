@@ -1,0 +1,24 @@
+﻿name: Build Docker Image
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t fntv-proxy:fix .
+
+      - name: Save image as tar
+        run: docker save fntv-proxy:fix | gzip > fntv-proxy-fix.tar.gz
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fntv-proxy-fix
+          path: fntv-proxy-fix.tar.gz
+          retention-days: 7
